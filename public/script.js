@@ -28,11 +28,14 @@ async function actualizarListaUnidades() {
 }
 
 async function guardarUnidad() {
-    const nombre = document.getElementById('nuevaUnidad').value;
+    const nombreInput = document.getElementById('nombreUnidad').value;
+    
     await fetch('/api/unidades', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ nombre })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: nombreInput }) // "nombre" debe coincidir con el backend
     });
-    actualizarListaUnidades();
+
+    document.getElementById('nombreUnidad').value = ""; // Limpiar input
+    cargarUnidades(); // Refrescar la lista
 }
