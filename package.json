@@ -1,0 +1,22 @@
+{
+  "name": "dashboard-almacen",
+  "version": "1.0.0",
+  "description": "Proyecto de gestión de catálogos para Vercel",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "mysql2": "^3.9.0"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
