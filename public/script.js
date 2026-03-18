@@ -26,16 +26,21 @@ async function actualizarListaUnidades() {
     const lista = document.getElementById('listaUnidades');
     lista.innerHTML = data.map(u => `<li>${u.nombre}</li>`).join('');
 }
-
 async function guardarUnidad() {
-    const nombreInput = document.getElementById('nombreUnidad').value;
-    
+    const input = document.getElementById('nombreUnidad');
+    const valor = input.value;
+
+    // 1. Enviamos al servidor
     await fetch('/api/unidades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: nombreInput }) // "nombre" debe coincidir con el backend
+        body: JSON.stringify({ nombre: valor })
     });
 
-    document.getElementById('nombreUnidad').value = ""; // Limpiar input
-    cargarUnidades(); // Refrescar la lista
+    // 2. Limpiamos el cuadrito de texto
+    input.value = "";
+
+    // 3. ¡IMPORTANTE! Volvemos a llamar a la función que dibuja la lista
+    // Esto hace que el nuevo dato aparezca en pantalla sin recargar la página.
+    cargarUnidades(); 
 }
