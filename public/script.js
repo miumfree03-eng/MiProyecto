@@ -30,17 +30,30 @@ async function guardarUnidad() {
     const input = document.getElementById('nombreUnidad');
     const valor = input.value;
 
-    // 1. Enviamos al servidor
+    if (!valor) return alert("Escribe un nombre");
+
+    // 1. ENVIAR: Mandamos el dato al servidor (index.js)
     await fetch('/api/unidades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre: valor })
     });
 
-    // 2. Limpiamos el cuadrito de texto
+    // 2. LIMPIAR: Borramos lo que escribiste en el cuadrito
     input.value = "";
 
-    // 3. ¡IMPORTANTE! Volvemos a llamar a la función que dibuja la lista
-    // Esto hace que el nuevo dato aparezca en pantalla sin recargar la página.
-    cargarUnidades(); 
+    // 3. REFLEJAR: Llamamos a la función que trae los datos de la DB
+    // ¡Esta es la parte que hace que aparezca en la lista!
+    await cargarUnidades(); 
+}
+
+async function cargarUnidades() {
+    const lista = document.getElementById('lista');
+    
+    // Pedimos los datos actualizados al servidor
+    const res = await fetch('/api/unidades');
+    const data = await res.json();
+
+    // Dibujamos la lista en el HTML
+    lista.innerHTML = data.map(u => `<li>${u.nombre}</li>`).join('');
 }
