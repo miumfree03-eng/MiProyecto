@@ -1,53 +1,47 @@
+const mysql = require('mysql2/promise');
 const express = require('express');
 const path = require('path');
 const app = express();
-const mysql = require('mysql2/promise');
 
 app.use(express.json());
+app.use(express.static(__dirname));
 
-// 1. Servir archivos estáticos desde la carpeta 'public'
-app.use(express.static(path.join(__dirname, 'public')));
+// 1. DECLARAR dbConfig (Asegúrate de que esté ARRIBA de las rutas)
+const dbConfig = {
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306
+};
 
-// 2. Ruta para el Home (Esto evita el error Cannot GET /)
+// 2. RUTA PRINCIPAL
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
-// ... (Tus require y configuración de dbConfig van arriba) ...
 
-// --- RUTA PARA OBTENER UNIDADES (GET) ---
+// 3. RUTAS DE LA API (Aquí ya pueden usar dbConfig porque ya existe arriba)
 app.get('/api/unidades', async (req, res) => {
     try {
         const connection = await mysql.createConnection(dbConfig);
         const [rows] = await connection.execute('SELECT * FROM unidades');
         await connection.end();
-        res.json(rows); // Envía la lista de unidades al frontend
+        res.json(rows);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error al leer la base de datos" });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// --- RUTA PARA GUARDAR UNIDADES (POST) ---
 app.post('/api/unidades', async (req, res) => {
-    const { nombre } = req.body; // Recibe el nombre desde el frontend
-    
-    if (!nombre) {
-        return res.status(400).json({ error: "El nombre es obligatorio" });
-    }
-
+    const { nombre } = req.body;
     try {
         const connection = await mysql.createConnection(dbConfig);
-        // Aquí va el código SQL para insertar
-        const sql = 'INSERT INTO unidades (nombre) VALUES (?)';
-        await connection.execute(sql, [nombre]);
+        await connection.execute('INSERT INTO unidades (nombre) VALUES (?)', [nombre]);
         await connection.end();
-        
-        res.json({ success: true, message: "Unidad guardada correctamente" });
+        res.json({ success: true });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error al guardar en la base de datos" });
+        res.status(500).json({ error: error.message });
     }
 });
 
-// IMPORTANTE: Esta línea debe ir al final
 module.exports = app;
